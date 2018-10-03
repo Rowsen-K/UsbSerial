@@ -14,16 +14,21 @@ import android.widget.TextView;
 public class SetActivity extends AppCompatActivity {
 ExpandableListView expList;
 Button confirm;
-String[] level1 = {"波特率","数据位","校验位","停止位" };
+String[] level1;
 String[][] level2 = {{"4800","9600","38400","115200"},{"7","8"},{"N","奇校验","偶校验"},{"1","n"}};
-Rowsen app = (Rowsen) getApplication();
+Rowsen app;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set);
         expList = findViewById(R.id.expList);
         confirm = findViewById(R.id.confirm);
-        final SharedPreferences.Editor ed = getSharedPreferences("SerialPortSetting",MODE_PRIVATE).edit();
+        app = (Rowsen) getApplication();
+        final SharedPreferences sp = app.sp;
+        if(sp.getString("波特率",null)==null)
+            level1 = new String[]{"波特率","数据位","校验位","停止位" };
+        else level1 = new String[]{"波特率："+sp.getString("波特率",null),"数据位："+sp.getString("数据位",null),"校验位："+sp.getString("校验位",null),"停止位："+sp.getString("停止位",null)};
+        final SharedPreferences.Editor ed = sp.edit();
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -31,7 +36,10 @@ Rowsen app = (Rowsen) getApplication();
                     String[] temp = level1[n].split("：");
                     ed.putString(temp[0],temp[1]);
                 }
-                ed.commit();
+                if(ed.commit()){
+                    System.out.println("============="+sp.getAll());
+                    finish();
+                }
             }
         });
         expList.setAdapter(adp);
